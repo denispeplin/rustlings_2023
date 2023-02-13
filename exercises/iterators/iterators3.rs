@@ -6,8 +6,6 @@
 //    list_of_results functions.
 // Execute `rustlings hint iterators3` or use the `hint` watch subcommand for a hint.
 
-// I AM NOT DONE
-
 #[derive(Debug, PartialEq, Eq)]
 pub enum DivisionError {
     NotDivisible(NotDivisibleError),
@@ -35,25 +33,14 @@ pub fn divide(a: i32, b: i32) -> Result<i32, DivisionError> {
 
 // Complete the function and return a value of the correct type so the test passes.
 // Desired output: Ok([1, 11, 1426, 3])
-fn result_with_list() -> Result<Vec<i32>, DivisionError> {
-    let numbers = vec![27, 297, 38502, 81];
-    let division_results = numbers
-        .into_iter()
-        // that would panic if there are errors in the list
-        // the best solutioin would be an early return, but it's tricky
-        // also, there is no test for such case
-        .map(|n| divide(n, 27).unwrap())
-        .collect();
-
-    Ok(division_results)
+fn result_with_list(numbers: Vec<i32>) -> Result<Vec<i32>, DivisionError> {
+    numbers.into_iter().map(|n| divide(n, 27)).collect()
 }
 
 // Complete the function and return a value of the correct type so the test passes.
 // Desired output: [Ok(1), Ok(11), Ok(1426), Ok(3)]
-fn list_of_results() -> Vec<Result<i32, DivisionError>> {
-    let numbers = vec![27, 297, 38502, 81];
-    let division_results = numbers.into_iter().map(|n| divide(n, 27));
-    division_results.collect()
+fn list_of_results(numbers: Vec<i32>) -> Vec<Result<i32, DivisionError>> {
+    numbers.into_iter().map(|n| divide(n, 27)).collect()
 }
 
 #[cfg(test)]
@@ -88,14 +75,29 @@ mod tests {
 
     #[test]
     fn test_result_with_list() {
-        assert_eq!(format!("{:?}", result_with_list()), "Ok([1, 11, 1426, 3])");
+        assert_eq!(
+            format!("{:?}", result_with_list(vec![27, 297, 38502, 81])),
+            "Ok([1, 11, 1426, 3])"
+        );
+
+        assert_eq!(
+            result_with_list(vec![27, 200, 38502, 81]),
+            Err(DivisionError::NotDivisible(NotDivisibleError {
+                dividend: 200,
+                divisor: 27
+            }))
+        );
     }
 
     #[test]
     fn test_list_of_results() {
         assert_eq!(
-            format!("{:?}", list_of_results()),
+            format!("{:?}", list_of_results(vec![27, 297, 38502, 81])),
             "[Ok(1), Ok(11), Ok(1426), Ok(3)]"
+        );
+        assert_eq!(
+            format!("{:?}", list_of_results(vec![27, 200, 38502, 81])),
+            "[Ok(1), Err(NotDivisible(NotDivisibleError { dividend: 200, divisor: 27 })), Ok(1426), Ok(3)]"
         );
     }
 }
