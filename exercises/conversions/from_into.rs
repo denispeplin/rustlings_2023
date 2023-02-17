@@ -39,6 +39,24 @@ impl Default for Person {
 
 impl From<&str> for Person {
     fn from(s: &str) -> Person {
+        let default = Person::default();
+
+        match s.split_once(",") {
+            Some((name, age_str)) => match age_str.parse() {
+                Ok(age) => {
+                    if name.is_empty() {
+                        default
+                    } else {
+                        Person {
+                            name: name.to_string(),
+                            age: age,
+                        }
+                    }
+                }
+                _ => default,
+            },
+            None => default,
+        }
     }
 }
 
