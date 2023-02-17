@@ -39,24 +39,22 @@ impl Default for Person {
 
 impl From<&str> for Person {
     fn from(s: &str) -> Person {
-        let default = Person::default();
-
-        match s.split_once(",") {
-            Some((name, age_str)) => match age_str.parse() {
-                Ok(age) => {
-                    if name.is_empty() {
-                        default
-                    } else {
-                        Person {
-                            name: name.to_string(),
-                            age: age,
-                        }
-                    }
-                }
-                _ => default,
-            },
-            None => default,
+        fn build_person(name: &str, age: usize) -> Option<Person> {
+            if name.is_empty() {
+                None
+            } else {
+                Some(Person {
+                    name: name.to_string(),
+                    age: age,
+                })
+            }
         }
+
+        s.split_once(",")
+            .and_then(|(name, age_str)| {
+                age_str.parse().ok().and_then(|age| build_person(name, age))
+            })
+            .unwrap_or(Person::default())
     }
 }
 
